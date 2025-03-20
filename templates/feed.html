@@ -121,7 +121,7 @@
 
                 $.ajax({
                     type: "POST",
-                    url: `/users/${action}/${postID}/`,
+                    url: `/reaction/${postID}/${action}/`,
                     headers: { "X-CSRFToken": csrfToken },
                     success: function (response) {
                         if (response.success) {
@@ -159,7 +159,7 @@
 
                 $.ajax({
                     type: "POST",
-                    url: `/users/add_comment/${postID}/`,
+                    url: `/add_comment/${postID}/`,
                     headers: { "X-CSRFToken": csrfToken },
                     contentType: "application/json",
                     data: JSON.stringify({ text: commentText }),

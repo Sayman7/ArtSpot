@@ -99,9 +99,9 @@ WSGI_APPLICATION = 'ArtSpot.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'artspotdb',
+        'NAME': 'artspot',
         'USER': 'root',
-        'PASSWORD': 'Praveen027',
+        'PASSWORD': '@Yash514',
         'HOST': 'localhost',
         'PORT': '3306', 
     }
@@ -144,3 +144,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+import os
+
+MEDIA_URL = '/media/'  # URL prefix for media files
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Directory to store uploaded media
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
