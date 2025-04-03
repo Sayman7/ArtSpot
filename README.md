@@ -1,16 +1,19 @@
-# celery.py
-from __future__ import absolute_import, unicode_literals
-import os
-from celery import Celery
+from celery.schedules import crontab
 
-# set the default Django settings module for the 'celery' program.
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'chat_app')
 
-# create a Celery instance and configure it using the settings module.
-app = Celery('chat_app')
 
-# load task modules from all registered Django app configs.
-app.config_from_object('django.conf:settings', namespace='CELERY')
+CHANNEL_LAYERS={
+    'default':{
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+    }
+}
 
-# auto-discover tasks in all installed apps
-app.autodiscover_tasks()
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+CELERY_BEAT_SCHEDULE = {
+    'delete_idle_lobbies': {
+        'task': 'chat.tasks.delete_idle_lobbies',
+        'schedule': crontab(minute=0, hour='*/1'),  # Runs every hour
+    },
+}
