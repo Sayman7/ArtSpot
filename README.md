@@ -1,215 +1,103 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'cbase.html' %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lobby</title>
-    <style>
-        body {
-            font-family: serif;
-            background-color: #222;
-            margin: 0;
-            padding: 0;
+{% block title %}Create chat lobby!{% endblock %}
+
+{% block css  %}
+<link rel="stylesheet" href="/static/style.css">
+<style>
+    /* Responsive Design */
+    @media screen and (max-width: 768px) {
+        .lobbycode a {
+            font-size: 0.9rem; /* Slightly reduce font size for tablets */
+            color: rgb(175, 75, 77); /* Adjust color for better contrast */
         }
-
-        .background-video {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -1;
+    }
+    
+    @media screen and (max-width: 480px) {
+        .lobbycode a {
+            font-size: 0.8rem; /* Further reduce font size for smaller screens */
+            padding: 3px; /* Adjust padding for smaller touch targets */
+            color: rgb(200, 85, 90); /* Brighter color for readability */
         }
-
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            width: 100%;
-            height: 100%;
-            font-size: 20px;
-            color: #fff;
+    
+        .lobbycode a:hover {
+            text-decoration: none; /* Remove underline for simpler UX */
+            font-weight: bold; /* Add emphasis */
         }
-
-        .chat-header {
-            background-color: rgb(130, 34, 34);
-            padding: 10px;
-            text-align: center;
-            color: #fff;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1;
-        }
-
-        .chat-messages {
-            flex: 1;
-            min-height: 33rem;
-            overflow-y: auto;
-            position: relative;
-            top: 2rem;
-            padding: 10px;
-            bottom: 1.5rem;
-            padding-top: 5rem;
-            /* Ensures no overlap with the header */
-            padding-bottom: 4rem;
-            /* Prevents overlap with the input */
-            background-color: rgba(0, 0, 0, 0.8);
-        }
-
-        .chat-message {
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-            font-family: serif;
-        }
-
-        .sent {
-            text-align: left;
-        }
-
-        .received {
-            text-align: right;
-        }
-
-        .chat-input {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            background-color: #111010;
-            z-index: 1;
-        }
-
-        .chat-input input {
-            flex: 1;
-            width: 60rem;
-            height: 2.5rem;
-            border-radius: 10px;
-            padding: 5px 10px;
-            font-family: serif;
-            border: 2px solid white;
-            font-size: 1rem;
-            color: #fff;
-            background-color: rgba(0, 0, 0, 0.7);
-        }
-
-        .chat-input button {
-            width: 5rem;
-            height: 3rem;
-            border-radius: 10px;
-            color: white;
-            font-size: 1.2rem;
-            font-family: serif;
-            background-color: rgb(147, 43, 43);
-            border: none;
-            cursor: pointer;
-        }
-
-        .chat-input button:hover {
-            background-color: rgb(95, 27, 27);
-        }
-
-        @media screen and (max-width: 768px) {
-            .chat-input input {
-                font-size: 0.9rem;
-            }
-
-            .chat-input button {
-                font-size: 0.9rem;
-            }
-        }
-    </style>
-</head>
-
-<body>
-    <video class="background-video" muted loop autoplay playsinline>
-        <source src="/static/ALGOVisualizer.mp4" type="video/mp4">
-    </video>
-
-    <div class="chat-container">
-        <div class="chat-header">
-            <h1>Welcome to room {{room_name}}!</h1>
-            <h2 id="member-count"></h2>
+    }
+    
+</style>
+<nav class="flex items-center justify-between px-2 h-12 fixed top-0 w-full">
+    <a class="flex text-xl font-serif text-white italic" href="home">AlgoVisualizer</a>
+    <div class="relative cursor-pointer" id="dropdownButton">
+        <div onclick="toggleDropdown()" class="flex text-white ml-40">
+            {% if profile_photo_base64 %}
+            <img class="h-10 w-10 rounded-full" src="data:image/jpeg;base64,{{ profile_photo_base64 }}" 
+                alt="Profile Photo">
+            {% else %}
+            <img src="/static/profile.png" class="h-10 rounded-full" alt="default Profile Photo">
+            {% endif %}
         </div>
-
-        <div class="chat-messages" id="messages">
-            <!-- Chat messages will appear here dynamically -->
+        <div id="dropdown" class="dropdown rounded-xl border-2 border-red-900 absolute mt-1 mr-40 hidden">
+            <div class="hover:bg-red-900 font-serif text-md w-44 p-3 text-white rounded-xl">
+                <a class="p-3 w-44" href="{% if user.is_authenticated %}/profile{% else %}/{% endif %}"> Your Profile</a>
+            </div>
+            <div class="hover:bg-red-900 font-serif text-md w-44 p-3 text-white rounded-xl">
+                <a class="p-3 w-44" href="login">Sign In / Sign Up</a>
+            </div>
+            <div class="hover:bg-red-900 font-serif text-md w-44 p-3 text-white rounded-xl">
+                <a class="p-3 w-44" href="about">Contact Us</a>
+            </div>
+            <div class="hover:bg-red-900 font-serif text-md w-44 p-3 text-white rounded-xl">
+                <a class="p-3 w-44" href="chatlobby">Chat</a>
+            </div>
         </div>
-
     </div>
-    <footer>
-        <div class="chat-input">
-            <form id="form">
-                <input type="text" id="textinput" name="message" placeholder="Type your message..." autocomplete="off">
-                <button type="submit">Send</button>
-            </form>
-        </div>
-    </footer>
-    <script type="text/javascript">
-        const user_name = "{{user_name}}";
-        const lobbycode = "{{lobbycode}}";
+</nav> 
+{% endblock %}
 
-        // WebSocket setup
-        const url = `ws://${window.location.host}/ws/socket-server/${lobbycode}/`;
-        const chatSocket = new WebSocket(url);
+{% block h1 %} Create your own lobby {% endblock %}
 
-        const messagesContainer = document.getElementById('messages');
-        const memberCountDisplay = document.getElementById('member-count');
-        const form = document.getElementById('form');
+{% block div %} 
 
-        // Scroll to the bottom of the chat
-        function scrollToBottom() {
-            setTimeout(() => {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }, 0); // Delay to ensure DOM updates are complete
+<form method="post" action="{% url 'create_lobby' %}"> {% csrf_token %}
+    
+    <label class="text-lg flex pl-1" for="lobby_name">Name your lobby:</label>
+    <input class="h-10 px-2" type="text" id="lobby_name" name="lobby_name" value="{{ request.POST.lobby_name }}" required>
+
+    <label class="text-lg flex pl-1 mt-5" for="members">Enter the number of members:</label>
+    <input class="h-10 px-2" type="number" id="members" name="members" min="2" max="30" placeholder="2 to 30" value="{{ request.POST.members }}" required>
+
+    <button class="h-10 w-32 bg-red-700 my-5 rounded-xl hover:bg-red-900" type="submit">Done</button>
+
+</form>
+
+{% if lobby_code %}
+    <div class="lobbycode text-lg">
+        <p>Your lobby code: {{ lobby_code }} <br> <a class="text-red-500 hover:text-red-800 hover:underline" href="{% url 'chatlobby' %}">Click here</a> and enter your lobby.</p>
+    </div>
+{% endif %}
+<script>
+    function toggleDropdown() {
+        const dropdown = document.querySelector('#dropdown');
+        dropdown.classList.toggle('hidden');
+    }
+
+    // Close the dropdown if clicked outside
+    document.addEventListener('click', function (event) {
+        const dropdown = document.querySelector('#dropdown');
+        const dropdownButton = document.querySelector('#dropdownButton');
+
+        // Check if the click is outside the dropdown and the button
+        if (!dropdownButton.contains(event.target)) {
+            dropdown.classList.add('hidden');
         }
+    });
 
-        chatSocket.onmessage = function (e) {
-            const data = JSON.parse(e.data);
-
-            if (data.type === 'member_count') {
-                memberCountDisplay.textContent = `Members: ${data.member}`;
-                return;
-            }
-
-            if (data.type === 'chat') {
-                const messageClass = data.user_name === user_name ? 'received' : 'sent';
-                const userDisplay = data.user_name === user_name ? 'You' : data.user_name;
-
-                const messageElement = `
-                    <div class="chat-message ${messageClass}">
-                        <p><strong>${userDisplay}:</strong> ${data.message}</p>
-                    </div>
-                `;
-
-                messagesContainer.insertAdjacentHTML('beforeend', messageElement);
-                scrollToBottom();
-            }
-        };
-
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-
-            const input = e.target.message.value.trim();
-            if (input === '') return;
-
-            chatSocket.send(JSON.stringify({
-                message: input,
-                user_name: user_name
-            }));
-
-            form.reset();
-        });
-
-        // Ensure the chat is scrolled to the bottom on load
-        scrollToBottom();
-    </script>
-</body>
-
-</html>
+    // Hide the dropdown when the page is unloaded (redirected or refreshed)
+    window.addEventListener('beforeunload', function () {
+        const dropdown = document.querySelector('#dropdown');
+        dropdown.classList.add('hidden');
+    });
+</script>
+{% endblock %}
