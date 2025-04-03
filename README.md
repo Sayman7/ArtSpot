@@ -1,7 +1,17 @@
-from home.models import Chat, Chatroom
+import os
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
+from django.core.asgi import get_asgi_application
+import home.routing
 
-# Register your models here.
 
-admin.site.register(Chat)
-admin.site.register(Chatroom)
-#Chat Lobby
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'chat_app.settings')
+
+application = ProtocolTypeRouter({
+    'http': get_asgi_application(),
+    'websocket':AuthMiddlewareStack(
+        URLRouter(
+            home.routing.websocket_urlpatterns
+        )
+    )
+})
