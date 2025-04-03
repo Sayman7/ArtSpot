@@ -1,152 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link  rel="stylesheet" href="/static/style.css">
+
+import random, string
+import json
+
+
+def chatlobby(request):
+    return render(request, 'chatlobby.html')
+
+
+def lobby(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        lobby_code = request.POST.get('lobbycode')
+
+        #checking if lobby code exists
+        f=open("media/static/lobbies.json")
+        lobbies=json.load(f)
+        f.close()
+
+        if lobby_code not in lobbies:
+            return render(request, 'chatlobby.html', {'message':'Lobby does not exist. Please check your lobby code.'})
+
+    return render(request, 'lobby.html', {'user_name': name, 'lobbycode':lobby_code, 'room_name':lobbies[lobby_code]})
+
+
+def create_lobby(request):
+    if request.method == 'POST':
+        lobby_name = request.POST.get('lobby_name')
+        
+        f=open("media/static/lobbies.json")
+        lobbies=json.load(f)
+        f.close()
+
+        while True:
+            lobby_code = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(5))
+            if lobby_code not in lobbies:
+                break
+        
+        lobbies.update({lobby_code:lobby_name})
+        with open("media/static/lobbies.json","w") as file:
+            json.dump(lobbies, file)
+        
+        return render(request, 'create_lobby.html',{'lobby_code': lobby_code})
     
-    <title>{% block title  %} {% endblock %}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <style>
-    
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: serif;
-            background-color: #181818;
-            color: #fff;
-        }
-        
-        .background-video {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -1;
-        }
-        
-        h1 {
-            color: #dddaaa;
-        }
-        
-        h4 {
-            color: #c31c1c;
-        }
-        
-        .input-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px; /* Add padding for smaller screens */
-        }
-        
-        .input-box {
-            background-color: #292929;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            width: 100%;
-            max-width: 500px;
-        }
-        
-        .input-box h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #333;
-            background-color: #1f1f1f;
-            color: #fff;
-            font-size: 1rem; /* Ensure readability */
-        }
-        
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: rgb(109, 43, 43);
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            font-size: 1rem; /* Ensure button text is readable */
-        }
-        
-        button:hover {
-            background-color: rgb(173, 127, 127);
-        }
-        
-        /* Responsive Design */
-        @media screen and (max-width: 768px) {
-            .input-box {
-                padding: 20px;
-                max-width: 90%;
-            }
-        
-            .input-box h1 {
-                font-size: 20px;
-            }
-        
-            input {
-                font-size: 0.9rem;
-                padding: 8px;
-            }
-        
-            button {
-                font-size: 0.9rem;
-                padding: 8px;
-            }
-        }
-        
-        @media screen and (max-width: 480px) {
-            .input-box {
-                padding: 15px;
-            }
-        
-            .input-box h1 {
-                font-size: 18px;
-            }
-        
-            input {
-                font-size: 0.8rem;
-                padding: 7px;
-            }
-        
-            button {
-                font-size: 0.8rem;
-                padding: 7px;
-            }
-        }
-    </style>
-        
-
-{% block css  %} {% endblock %}
-
-</head>
-
-<body >
-    <video class="background-video h-auto" muted loop autoplay playsinline>
-        <source src="/static/ALGOVisualizer.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-  <div class="input-container container" style="max-width: 500px; margin: 0 auto; padding: 20px;">
-  <div class="input-box">
-    <h1>{% block h1 %} {% endblock %}</h1>
-    <h4>{% block h4 %} {% endblock %}</h1>
-
-    {% block div %} {% endblock %}
-  </div>
-</div>
-
-{% block script %} {% endblock %}
-
-</body>
-</html>
+    return render(request, 'create_lobby.html')
