@@ -1,86 +1,215 @@
-{% extends 'base.html' %}
-{% load static %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block content %}
-<link rel="stylesheet" href="{% static 'dashboard.css' %}">
-<div class="flex flex-col items-center min-h-screen bg-gradient-to-br from-[#0a0a0a] to-[#6a6e70] text-white">
-    <!-- Sidebar -->
-    <div class="fixed left-4 top-[50%] transform -translate-y-1/2 w-20 h-[60vh] bg-[#141414] bg-opacity-80 backdrop-blur-md rounded-2xl p-4 transition-all duration-500 shadow-lg group hover:w-48 hover:bg-opacity-90">
-        <ul class="space-y-4 mt-4 flex flex-col items-start w-full">
-            <li onclick="location.href='{% url 'home' %}'" class="flex items-center gap-4 p-3 w-full text-lg rounded-xl cursor-pointer transition-transform hover:bg-white/10 hover:scale-105 relative">
-                <i class="fa-solid fa-home"></i> 
-                <span class="ml-4 opacity-0 transform translate-x-[-10px] transition-all duration-500 group-hover:opacity-100 group-hover:translate-x-0">Home</span>
-            </li>
-            <li onclick="window.open('https://chat.whatsapp.com/YOUR_COMMUNITY_LINK', '_blank')" class="flex items-center gap-4 p-3 w-full text-lg rounded-xl cursor-pointer transition-transform hover:bg-white/10 hover:scale-105 relative">
-                <i class="fa-solid fa-chain"></i> 
-                <span class="ml-4 opacity-0 transform translate-x-[-10px] transition-all duration-500 group-hover:opacity-100 group-hover:translate-x-0">Community</span>
-            </li>
-            <li onclick="location.href='{% url 'trending_posts' %}'" class="flex items-center gap-4 p-3 w-full text-lg rounded-xl cursor-pointer transition-transform hover:bg-white/10 hover:scale-105 relative">
-                <i class="fa-solid fa-bolt"></i> 
-                <span class="ml-4 opacity-0 transform translate-x-[-10px] transition-all duration-500 group-hover:opacity-100 group-hover:translate-x-0">Trending</span>
-            </li>
-            
-            <li class="flex items-center gap-4 p-3 w-full text-lg rounded-xl cursor-pointer transition-transform hover:bg-white/10 hover:scale-105 relative">
-                <i class="fa-solid fa-comment"></i> 
-                <span class="ml-4 opacity-0 transform translate-x-[-10px] transition-all duration-500 group-hover:opacity-100 group-hover:translate-x-0">Message</span>
-            </li>
-            <li class="flex items-center gap-4 p-3 w-full text-lg rounded-xl cursor-pointer transition-transform hover:bg-white/10 hover:scale-105 relative">
-                <i class="fa-solid fa-bars"></i> 
-                <span class="ml-4 opacity-0 transform translate-x-[-10px] transition-all duration-500 group-hover:opacity-100 group-hover:translate-x-0">More</span>
-            </li>
-        </ul>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lobby</title>
+    <style>
+        body {
+            font-family: serif;
+            background-color: #222;
+            margin: 0;
+            padding: 0;
+        }
+
+        .background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 100%;
+            height: 100%;
+            font-size: 20px;
+            color: #fff;
+        }
+
+        .chat-header {
+            background-color: rgb(130, 34, 34);
+            padding: 10px;
+            text-align: center;
+            color: #fff;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1;
+        }
+
+        .chat-messages {
+            flex: 1;
+            min-height: 33rem;
+            overflow-y: auto;
+            position: relative;
+            top: 2rem;
+            padding: 10px;
+            bottom: 1.5rem;
+            padding-top: 5rem;
+            /* Ensures no overlap with the header */
+            padding-bottom: 4rem;
+            /* Prevents overlap with the input */
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .chat-message {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            font-family: serif;
+        }
+
+        .sent {
+            text-align: left;
+        }
+
+        .received {
+            text-align: right;
+        }
+
+        .chat-input {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background-color: #111010;
+            z-index: 1;
+        }
+
+        .chat-input input {
+            flex: 1;
+            width: 60rem;
+            height: 2.5rem;
+            border-radius: 10px;
+            padding: 5px 10px;
+            font-family: serif;
+            border: 2px solid white;
+            font-size: 1rem;
+            color: #fff;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .chat-input button {
+            width: 5rem;
+            height: 3rem;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.2rem;
+            font-family: serif;
+            background-color: rgb(147, 43, 43);
+            border: none;
+            cursor: pointer;
+        }
+
+        .chat-input button:hover {
+            background-color: rgb(95, 27, 27);
+        }
+
+        @media screen and (max-width: 768px) {
+            .chat-input input {
+                font-size: 0.9rem;
+            }
+
+            .chat-input button {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <video class="background-video" muted loop autoplay playsinline>
+        <source src="/static/ALGOVisualizer.mp4" type="video/mp4">
+    </video>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>Welcome to room {{room_name}}!</h1>
+            <h2 id="member-count"></h2>
+        </div>
+
+        <div class="chat-messages" id="messages">
+            <!-- Chat messages will appear here dynamically -->
+        </div>
+
     </div>
-
-    <!-- Main Content -->
-    <div class="ml-28 w-[85%] flex flex-col items-center p-6">
-        <!-- Profile Section -->
-        <div class="w-2/3 bg-[#1e1e1e] bg-opacity-85 rounded-2xl p-10 flex items-center shadow-lg">
-            {% if user.userprofile.profile_photo %}
-            <img src="{{ user.userprofile.profile_photo.url }}" alt="Profile Picture"
-                 class="w-32 h-32 rounded-full border-2 border-white shadow-md transform hover:scale-110 transition-transform">
-            {% else %}
-            <img src="/media/default.jpg" alt="Default Profile Picture"
-                 class="w-32 h-32 rounded-full border-2 border-white shadow-md transform hover:scale-110 transition-transform">
-            {% endif %} 
-            <div class="ml-6 text-white">
-                <h2 class="text-4xl font-bold">@{{ profile_user.username }}</h2>
-                <p class="text-gray-300 text-lg">{{ profile_user.bio }}</p>
-                <button onclick="location.href='{% url 'edit_profile' %}'" class="mt-4 px-6 py-2 bg-gray-700 text-white font-bold rounded-full hover:bg-gray-600 transition-all">Edit Profile</button>
-                <div class="flex gap-8 mt-4 text-lg font-semibold">
-                    <p>Posts: <span class="text-gray-300">{{ posts.count }}</span></p>
-                    <p>Followers: <span id="followers-count" class="text-gray-300">{{ profile.followers.count|default:0 }}</span></p>
-                    <p>Following: <span id="following-count" class="text-gray-300">{{ profile.following.count|default:0 }}</span></p>
-                </div>
-            </div>
+    <footer>
+        <div class="chat-input">
+            <form id="form">
+                <input type="text" id="textinput" name="message" placeholder="Type your message..." autocomplete="off">
+                <button type="submit">Send</button>
+            </form>
         </div>
+    </footer>
+    <script type="text/javascript">
+        const user_name = "{{user_name}}";
+        const lobbycode = "{{lobbycode}}";
 
-        <!-- Tabs -->
-        <div class="flex justify-center gap-6 mt-8">
-            <button class="tab active px-6 py-2 border-2 border-white text-white rounded-full hover:bg-gray-700 transition">Posts</button>
-            <button class="tab px-6 py-2 border-2 border-white text-white rounded-full hover:bg-gray-700 transition">Spotlight</button>
-            <button class="tab px-6 py-2 border-2 border-white text-white rounded-full hover:bg-gray-700 transition">Commented</button>
-            <button class="tab px-6 py-2 border-2 border-white text-white rounded-full hover:bg-gray-700 transition">Liked</button>
-        </div>
+        // WebSocket setup
+        const url = `ws://${window.location.host}/ws/socket-server/${lobbycode}/`;
+        const chatSocket = new WebSocket(url);
 
-        <!-- Content Grid -->
-       <div class="grid grid-cols-3 gap-6 mt-10 pb-20">
-            {% for post in posts %}
-                <div class="rounded-xl overflow-hidden shadow-lg transform transition-transform hover:scale-105">
-                    <img src="{{ post.image.url }}" alt="Post" class="w-full h-64 object-cover">
-                </div>
-            {% empty %}
-                 <p class="text-gray-300 col-span-3">No posts yet.</p>
-            {% endfor %}
-        </div>
-    </div>
-</div>
+        const messagesContainer = document.getElementById('messages');
+        const memberCountDisplay = document.getElementById('member-count');
+        const form = document.getElementById('form');
 
-<script>
-    function switchTab(tabName) {
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
-        document.getElementById(tabName).classList.remove('hidden');
-        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('bg-gray-700'));
-        event.target.classList.add('bg-gray-700');
-    }
-</script>
-{% endblock %} 
+        // Scroll to the bottom of the chat
+        function scrollToBottom() {
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 0); // Delay to ensure DOM updates are complete
+        }
+
+        chatSocket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+
+            if (data.type === 'member_count') {
+                memberCountDisplay.textContent = `Members: ${data.member}`;
+                return;
+            }
+
+            if (data.type === 'chat') {
+                const messageClass = data.user_name === user_name ? 'received' : 'sent';
+                const userDisplay = data.user_name === user_name ? 'You' : data.user_name;
+
+                const messageElement = `
+                    <div class="chat-message ${messageClass}">
+                        <p><strong>${userDisplay}:</strong> ${data.message}</p>
+                    </div>
+                `;
+
+                messagesContainer.insertAdjacentHTML('beforeend', messageElement);
+                scrollToBottom();
+            }
+        };
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const input = e.target.message.value.trim();
+            if (input === '') return;
+
+            chatSocket.send(JSON.stringify({
+                message: input,
+                user_name: user_name
+            }));
+
+            form.reset();
+        });
+
+        // Ensure the chat is scrolled to the bottom on load
+        scrollToBottom();
+    </script>
+</body>
+
+</html>
