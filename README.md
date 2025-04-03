@@ -1,19 +1,57 @@
-from celery.schedules import crontab
-
-
-
-CHANNEL_LAYERS={
-    'default':{
-        'BACKEND': 'channels.layers.InMemoryChannelLayer'
-    }
-}
-
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-
-CELERY_BEAT_SCHEDULE = {
-    'delete_idle_lobbies': {
-        'task': 'chat.tasks.delete_idle_lobbies',
-        'schedule': crontab(minute=0, hour='*/1'),  # Runs every hour
-    },
-}
+pip install aiohttp==3.9.5
+pip install aiosignal==1.3.1
+pip install amqp==5.2.0
+pip install asgiref==3.8.1
+pip install attrs==23.2.0
+pip install autobahn==23.6.2
+pip install Automat==22.10.0
+pip install billiard==4.2.0
+pip install celery==5.4.0
+pip install certifi==2024.6.2
+pip install cffi==1.16.0
+pip install channels==4.1.0
+pip install charset-normalizer==3.3.2
+pip install click==8.1.7
+pip install click-didyoumean==0.3.1
+pip install click-plugins==1.1.1
+pip install click-repl==0.3.0
+pip install colorama==0.4.6
+pip install constantly==23.10.4
+pip install cryptography==42.0.7
+pip install daphne==4.1.2
+pip install discord==2.3.2
+pip install discord.py==2.4.0
+pip install Django==5.0.6
+pip install djangorestframework==3.15.1
+pip install frozenlist==1.4.1
+pip install hyperlink==21.0.0
+pip install idna==3.7
+pip install incremental==22.10.0
+pip install kombu==5.3.7
+pip install multidict==6.0.5
+pip install pillow==10.3.0
+pip install prompt-toolkit==3.0.43
+pip install pyasn1==0.6.0
+pip install pyasn1_modules==0.4.0
+pip install pycparser==2.22
+pip install pyOpenSSL==24.1.0
+pip install python-dateutil==2.9.0.post0
+pip install python-decouple==3.8
+pip install requests==2.32.3
+pip install service-identity==24.1.0
+pip install setuptools==69.5.1
+pip install six==1.16.0
+pip install sqlparse==0.5.0
+pip install Twisted==24.3.0
+pip install twisted-iocpsupport==1.0.4
+pip install txaio==23.1.1
+pip install typing_extensions==4.11.0
+pip install tzdata==2024.1
+pip install urllib3==2.2.2
+pip install vine==5.1.0
+pip install wcwidth==0.2.13
+pip install yarl==1.9.4
+pip install zope.interface==6.3
+pip install pillow
+pip install openai
+pip install requests
