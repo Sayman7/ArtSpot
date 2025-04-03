@@ -1,32 +1,33 @@
-{% extends 'base.html' %}
 
-{% block content %}
-<div class="container">
-    <h2>Edit Your Profile</h2>
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        
-        <label for="username">Username:</label>
-        <input type="text" name="username" id="username" value="{{ user.username }}" required>
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import UserProfile
 
-        <label for="email">Email:</label>
-        <input type="email" name="email" id="email" value="{{ user.email }}" required>
+@login_required
+def edit_profile(request):
+    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
 
-        <label for="phone">Phone Number:</label>
-        <input type="text" name="phone" id="phone" value="{{ user.userprofile.phone|default:'' }}" placeholder="Enter your phone number">
+    if request.method == 'POST':
+        # Get data from form
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        name = request.POST.get('name')
+        profile_photo = request.FILES.get('profile_photo')
 
-        <label for="name">Full Name:</label>
-        <input type="text" name="name" id="name" value="{{ user.userprofile.name|default:'' }}" placeholder="Enter your full name">
+        # Update User model
+        user = request.user
+        user.username = username
+        user.email = email
+        user.save()
 
-        <label for="profile_photo">Profile Photo:</label>
-        <input type="file" name="profile_photo" id="profile_photo">
+        # Update UserProfile model
+        user_profile.phone = phone
+        user_profile.name = name
+        if profile_photo:
+            user_profile.profile_photo = profile_photo
+        user_profile.save()
 
-        {% if user.userprofile.profile_photo %}
-            <p>Current Photo:</p>
-            <img src="{{ user.userprofile.profile_photo.url }}" alt="Profile Photo" width="100">
-        {% endif %}
+        return redirect('profile', username=user.username)  # Pass username argument
 
-        <button type="submit">Update Profile</button>
-    </form>
-</div>
-{% endblock %}
+    return render(request, 'edit.html', {'user': request.user})
