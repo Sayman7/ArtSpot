@@ -50,10 +50,9 @@ def validate_image_size(image):
 
 class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # User who created the post
-    image = models.ImageField(upload_to='posts/', validators=[validate_image_size], blank=True, null=True)  # Image validation added
     caption = models.TextField(blank=True)  # Optional caption
     created_at = models.DateTimeField(auto_now_add=True)  # Stores post creation time
-    image = models.ImageField(upload_to='post/',default='default_post.jpg')  # Image Field
+    image = models.ImageField(upload_to='post/',default='default.jpg')  # Image Field
     title = models.CharField(max_length=255,default="Untitled post")  # Artwork Title
     description = models.TextField(default="No description provided.")  # Detailed Description
     price = models.DecimalField(max_digits=10, decimal_places=2,default=0.00)  # Price Field
@@ -103,3 +102,35 @@ class LikeDislike(models.Model):
 
     class Meta:
         unique_together = ('user', 'post')  # Prevents multiple reactions from the same user
+        
+class Order(models.Model):
+    # Your fields here
+    x=5
+    
+    
+class HomeChatroom(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+
+
+class Chatroom(models.Model):
+    name = models.CharField(max_length=5000)
+    
+    def _str_(self):
+        return self.name
+
+class Chat(models.Model):
+    chat_content = models.CharField(max_length=5000)
+    user = models.CharField(max_length=5000)
+    room = models.ForeignKey(Chatroom, on_delete=models.CASCADE)
+    timestamp = models.DateField(auto_now_add=True)
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    phone = models.CharField(max_length=15, blank=True, null=True)
+    name = models.CharField(max_length=255, blank=True, null=True)
+    profile_photo = models.ImageField(upload_to='profile_photos/', default='default.jpg')
+    
+    def __str__(self):
+        return self.user.username
