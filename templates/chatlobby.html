@@ -1,0 +1,115 @@
+{% extends 'cbase.html' %}
+
+{% block title %}Create Chat Lobby{% endblock %}
+
+{% block css %}
+<style>
+  body {
+    background: linear-gradient(120deg, #1e1e2f, #2a2f4f);
+    background-size: 200% 200%;
+    animation: gradientFlow 20s ease infinite;
+    font-family: 'Segoe UI', sans-serif;
+  }
+
+  @keyframes gradientFlow {
+    0% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .glassmorphism {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+</style>
+{% endblock %}
+
+{% block h1 %}
+<h1 class="text-4xl text-white text-center font-extrabold mb-2">Create Chat Lobby</h1>
+{% endblock %}
+
+{% block h4 %}
+{% if message %}
+<h4 class="text-center text-yellow-300 font-semibold mt-2">{{ message }}</h4>
+{% endif %}
+{% endblock %}
+
+{% block div %}
+<div class="max-w-lg w-full mx-auto mt-10 px-6 py-10 glassmorphism text-white shadow-lg">
+
+  <form method="post" action="{% url 'lobby' %}" class="space-y-10">
+    {% csrf_token %}
+
+    <!-- Username Field -->
+    <div class="relative">
+      <input
+        type="text"
+        name="name"
+        id="name"
+        placeholder=" "
+        required
+        class="peer w-full px-4 pt-6 pb-2 text-white placeholder-transparent bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+      />
+      <label
+        for="name"
+        class="absolute left-4 top-2.5 text-white text-opacity-70 text-sm transition-all transform scale-100 origin-left
+               peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-white/60 peer-placeholder-shown:scale-100
+               peer-focus:top-2.5 peer-focus:text-sm peer-focus:text-blue-300 peer-focus:scale-90"
+      >
+        Username
+      </label>
+    </div>
+
+    <!-- Lobby Code Field -->
+    <div class="relative">
+      <input
+        type="text"
+        name="lobbycode"
+        id="lobbycode"
+        placeholder=" "
+        required
+        class="peer w-full px-4 pt-6 pb-2 text-white placeholder-transparent bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+      />
+      <label
+        for="lobbycode"
+        class="absolute left-4 top-2.5 text-white text-opacity-70 text-sm transition-all transform scale-100 origin-left
+               peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-white/60 peer-placeholder-shown:scale-100
+               peer-focus:top-2.5 peer-focus:text-sm peer-focus:text-yellow-300 peer-focus:scale-90"
+      >
+        Lobby Code
+      </label>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="text-center">
+      <button
+        type="submit"
+        class="bg-blue-400 hover:bg-blue-500 text-black font-bold py-2 px-8 rounded-full transition-transform hover:scale-105 shadow-md"
+      >
+        Enter Lobby
+      </button>
+    </div>
+  </form>
+
+  <!-- Bottom Link -->
+  <div class="mt-8 text-center text-sm">
+    <p class="text-white text-opacity-80">Don’t have a code?
+      <a href="{% url 'create_lobby' %}" class="text-blue-300 hover:text-blue-400 underline font-medium">
+        Create your own
+      </a>.
+    </p>
+  </div>
+</div>
+{% endblock %}

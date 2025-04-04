@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lobby</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(120deg, #1e1e2f, #2a2f4f);
+      background-size: 200% 200%;
+      animation: gradientFlow 20s ease infinite;
+    }
+
+    @keyframes gradientFlow {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      /* border-radius: 1.5rem; */
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+  </style>
+</head>
+
+<body class="text-white overflow-hidden">
+
+  <!-- Chat Container -->
+  <div class="w-full h-screen flex items-center justify-center">
+    <div class="glass w-full h-full flex flex-col overflow-hidden">
+
+      <!-- Header -->
+      <header class="w-full py-4 text-center bg-black bg-opacity-50 backdrop-blur-sm shadow z-10">
+        <h1 class="text-2xl font-bold">Welcome to room {{ room_name }}!</h1>
+        <h2 id="member-count" class="text-blue-300 text-sm mt-1"></h2>
+      </header>
+
+      <!-- Messages -->
+      <main id="messages"
+        class="flex-1 overflow-y-auto p-6 space-y-4 text-base sm:text-lg bg-transparent">
+        <!-- Messages will appear here -->
+      </main>
+
+      <!-- Input -->
+      <footer class="w-full px-4 py-4 bg-black bg-opacity-60 backdrop-blur z-10">
+        <form id="form" class="max-w-5xl mx-auto flex gap-3 items-center">
+          <input type="text" id="textinput" name="message" placeholder="Type a message..." autocomplete="off"
+            class="flex-1 px-4 py-3 rounded-full bg-white/10 text-white border border-white/20 focus:ring-2 focus:ring-blue-400 focus:outline-none placeholder-white/70" />
+          <button type="submit"
+            class="bg-blue-400 hover:bg-blue-500 text-black font-semibold px-6 py-3 rounded-full transition hover:scale-105 shadow">
+            Send
+          </button>
+        </form>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Chat Logic -->
+  <script type="text/javascript">
+    const user_name = "{{ user_name }}";
+    const lobbycode = "{{ lobbycode }}";
+    const chatSocket = new WebSocket(`ws://${window.location.host}/ws/socket-server/${lobbycode}/`);
+
+    const messagesContainer = document.getElementById('messages');
+    const memberCountDisplay = document.getElementById('member-count');
+    const form = document.getElementById('form');
+
+    function scrollToBottom() {
+      setTimeout(() => {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }, 10);
+    }
+
+    chatSocket.onmessage = function (e) {
+      const data = JSON.parse(e.data);
+
+      if (data.type === 'member_count') {
+        memberCountDisplay.textContent = `Members: ${data.member}`;
+        return;
+      }
+
+      if (data.type === 'chat') {
+        const isOwn = data.user_name === user_name;
+        const alignment = isOwn ? 'justify-end' : 'justify-start';
+        const nameLabel = isOwn ? 'You' : data.user_name;
+        const bubbleColor = isOwn ? 'bg-blue-300 text-black' : 'bg-white/10 text-white';
+
+        const messageHTML = `
+          <div class="w-full flex ${alignment}">
+            <div class="max-w-[75%] px-4 py-2 rounded-2xl ${bubbleColor} shadow border border-white/10">
+              <span class="font-semibold mr-1">${nameLabel}:</span>${data.message}
+            </div>
+          </div>
+        `;
+        messagesContainer.insertAdjacentHTML('beforeend', messageHTML);
+        scrollToBottom();
+      }
+    };
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = e.target.message.value.trim();
+      if (input === '') return;
+
+      chatSocket.send(JSON.stringify({
+        message: input,
+        user_name: user_name
+      }));
+
+      form.reset();
+    });
+
+    scrollToBottom();
+  </script>
+</body>
+
+</html>
